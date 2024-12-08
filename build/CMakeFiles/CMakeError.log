@@ -1,0 +1,32 @@
+Determining if the _fwrite_nolock exist failed with the following output:
+Change Dir: C:/Users/Logan/Documents/Code/math/openGL-make/build/CMakeFiles/CMakeScratch/TryCompile-tik12s
+
+Run Build Command(s):C:/msys64/mingw64/bin/mingw32-make.exe -f Makefile cmTC_bf1d6/fast && C:/msys64/mingw64/bin/mingw32-make.exe  -f CMakeFiles\cmTC_bf1d6.dir\build.make CMakeFiles/cmTC_bf1d6.dir/build
+mingw32-make[1]: Entering directory 'C:/Users/Logan/Documents/Code/math/openGL-make/build/CMakeFiles/CMakeScratch/TryCompile-tik12s'
+Building C object CMakeFiles/cmTC_bf1d6.dir/CheckSymbolExists.c.obj
+C:\msys64\mingw64\bin\gcc.exe    -o CMakeFiles\cmTC_bf1d6.dir\CheckSymbolExists.c.obj -c C:\Users\Logan\Documents\Code\math\openGL-make\build\CMakeFiles\CMakeScratch\TryCompile-tik12s\CheckSymbolExists.c
+C:\Users\Logan\Documents\Code\math\openGL-make\build\CMakeFiles\CMakeScratch\TryCompile-tik12s\CheckSymbolExists.c: In function 'main':
+C:\Users\Logan\Documents\Code\math\openGL-make\build\CMakeFiles\CMakeScratch\TryCompile-tik12s\CheckSymbolExists.c:8:19: error: '_fwrite_nolock' undeclared (first use in this function); did you mean '_fgetc_nolock'?
+    8 |   return ((int*)(&_fwrite_nolock))[argc];
+      |                   ^~~~~~~~~~~~~~
+      |                   _fgetc_nolock
+C:\Users\Logan\Documents\Code\math\openGL-make\build\CMakeFiles\CMakeScratch\TryCompile-tik12s\CheckSymbolExists.c:8:19: note: each undeclared identifier is reported only once for each function it appears in
+mingw32-make[1]: *** [CMakeFiles\cmTC_bf1d6.dir\build.make:77: CMakeFiles/cmTC_bf1d6.dir/CheckSymbolExists.c.obj] Error 1
+mingw32-make[1]: Leaving directory 'C:/Users/Logan/Documents/Code/math/openGL-make/build/CMakeFiles/CMakeScratch/TryCompile-tik12s'
+mingw32-make: *** [Makefile:126: cmTC_bf1d6/fast] Error 2
+
+
+File CheckSymbolExists.c:
+/* */
+#include <stdio.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef _fwrite_nolock
+  return ((int*)(&_fwrite_nolock))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
