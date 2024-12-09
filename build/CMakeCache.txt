@@ -552,6 +552,15 @@ spdlog_IS_TOP_LEVEL:STATIC=OFF
 //Value Computed by CMake
 spdlog_SOURCE_DIR:STATIC=C:/Users/Logan/Documents/Code/math/openGL-make/extern/spdlog
 
+//Value Computed by CMake
+stb_BINARY_DIR:STATIC=C:/Users/Logan/Documents/Code/math/openGL-make/build/extern/stb
+
+//Value Computed by CMake
+stb_IS_TOP_LEVEL:STATIC=OFF
+
+//Value Computed by CMake
+stb_SOURCE_DIR:STATIC=C:/Users/Logan/Documents/Code/math/openGL-make/extern/stb
+
 
 ########################
 # INTERNAL cache entries
@@ -691,7 +700,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=8
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=9
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP

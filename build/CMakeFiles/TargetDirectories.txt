@@ -55,3 +55,10 @@ C:/Users/Logan/Documents/Code/math/openGL-make/build/extern/imgui/CMakeFiles/lis
 C:/Users/Logan/Documents/Code/math/openGL-make/build/extern/imgui/CMakeFiles/install.dir
 C:/Users/Logan/Documents/Code/math/openGL-make/build/extern/imgui/CMakeFiles/install/local.dir
 C:/Users/Logan/Documents/Code/math/openGL-make/build/extern/imgui/CMakeFiles/install/strip.dir
+C:/Users/Logan/Documents/Code/math/openGL-make/build/extern/stb/CMakeFiles/stb.dir
+C:/Users/Logan/Documents/Code/math/openGL-make/build/extern/stb/CMakeFiles/edit_cache.dir
+C:/Users/Logan/Documents/Code/math/openGL-make/build/extern/stb/CMakeFiles/rebuild_cache.dir
+C:/Users/Logan/Documents/Code/math/openGL-make/build/extern/stb/CMakeFiles/list_install_components.dir
+C:/Users/Logan/Documents/Code/math/openGL-make/build/extern/stb/CMakeFiles/install.dir
+C:/Users/Logan/Documents/Code/math/openGL-make/build/extern/stb/CMakeFiles/install/local.dir
+C:/Users/Logan/Documents/Code/math/openGL-make/build/extern/stb/CMakeFiles/install/strip.dir
