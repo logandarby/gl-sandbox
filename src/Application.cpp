@@ -119,10 +119,71 @@ Application::Application(const int width, const int height, const std::string na
 
 void Application::run() {
 	lightingTest();
+	// fboTest();
+}
+
+void Application::fboTest() {
+	
+	// Cube
+	CubeModel cube;
+	VertexArray cubeVAO;
+	cubeVAO.addBuffer(
+		std::make_shared<VertexBuffer>(cube.m_points.data(), sizeof(cube.m_points)),
+		std::make_shared<BufferLayout>(BufferLayout()
+			.withLayout<PositionWithTexture3D>()));
+	IndexBuffer cubeIb(cube.m_indices.data(), static_cast<unsigned int>(cube.m_indices.size()));
+
+	const glm::mat4 projection(glm::perspective(glm::radians(45.0f), (float)m_width / (float)m_height, 0.1f, 100.0f));
+
+	Shader colorShader(RESOURCES_PATH "/shaders/color3d.glsl");
+
+	// FBO Rect
+	const unsigned int FBO_SLOT = 0;
+	RectangleModel2D rect;
+	VertexArray rectVAO;
+	rectVAO.addBuffer(
+		std::make_shared<VertexBuffer>(rect.m_points.data(), sizeof(rect.m_points)),
+		std::make_shared<BufferLayout>(BufferLayout()
+			.withLayout<PositionWithTexture2D>()));
+	IndexBuffer rectIb(rect.m_indices.data(), static_cast<unsigned int>(rect.m_indices.size()));
+
+	FBOTex fboTex(m_width, m_height);
+	Shader fboShader(RESOURCES_PATH "/shaders/framebuffer.glsl");
+
+	m_window.whileOpen([&]() -> void {
+		fboTex.bindFBO();
+
+		m_renderer.clear();
+		GL_CALL(glEnable(GL_DEPTH_TEST));
+
+		cube.modelMatrix = glm::rotate(cube.modelMatrix, glm::radians(2.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+		m_camera.move(glm::vec3(-dx, -dy, -dz));
+
+		colorShader.bind();
+		colorShader
+			.setUniform4f("u_color", glm::vec4(0.2f, 0.8f, 0.6f, 1.0f))
+			.setUniformMat4("u_model", cube.modelMatrix)
+			.setUniformMat4("u_view", m_camera.getViewMatrix())
+			.setUniformMat4("u_projection", projection);
+
+		m_renderer.draw(cubeVAO, cubeIb, colorShader);
+
+		GL_CALL(glDisable(GL_DEPTH_TEST));
+
+		fboTex.unbind();
+		fboTex.bindTexture(FBO_SLOT);
+
+		fboShader.bind();
+		fboShader
+			.setUniform1i("u_texture", FBO_SLOT);
+		m_renderer.draw(rectVAO, rectIb, fboShader);
+
+
+		});
 }
 
 void Application::lightingTest() {
-	FBOTex fboTex(100, 100);
+	FBOTex fboTex(m_width, m_height);
 
 	// Rectangle
 	RectangleModel2D rect;
@@ -165,7 +226,7 @@ void Application::lightingTest() {
 
 	const GLCore::Sampler2D TEXTURE_SLOT = 0;
 	const GLCore::Sampler2D SPECULAR_SLOT = 1;
-	const GLCore::Sampler2D SKYBOX_SLOT = 0;
+	const GLCore::Sampler2D SKYBOX_SLOT = 2;
 	const GLCore::Sampler2D FBO_TEX_SLOT = 3;
 	Texture2D tex(RESOURCES_PATH "/textures/box/box_texture.png");
 	Texture2D specularTex(RESOURCES_PATH "/textures/box/box_specular.png");
@@ -180,11 +241,11 @@ void Application::lightingTest() {
 	tex.bind(TEXTURE_SLOT);
 	specularTex.bind(SPECULAR_SLOT);
 	skyboxTex.bind(SKYBOX_SLOT);
-	fboTex.bindTexture(FBO_TEX_SLOT);
+	// fboTex.bindTexture(FBO_TEX_SLOT);
 	Shader litTextureShader(RESOURCES_PATH "/shaders/specTexture.glsl");
 	Shader colorShader(RESOURCES_PATH "/shaders/color3d.glsl");
 	Shader skyboxShader(RESOURCES_PATH "/shaders/skyboxShader.glsl");
-	Shader texShader(RESOURCES_PATH "/shaders/texture3d.glsl");
+	Shader texShader(RESOURCES_PATH "/shaders/framebuffer.glsl");
 
 	glm::mat4 projection(1.0f);
 	projection = glm::perspective(glm::radians(45.0f), (float)m_width / (float)m_height, 0.1f, 100.0f);
@@ -214,8 +275,6 @@ void Application::lightingTest() {
 
 	m_window.whileOpen([&]() -> void {
 		fboTex.bindFBO();
-
-		GL_CALL(glEnable(GL_DEPTH_TEST));
 
 		m_renderer.clear();
 		GL_CALL(glEnable(GL_DEPTH_TEST));
@@ -285,7 +344,7 @@ void Application::lightingTest() {
 
 		texShader.bind();
 		texShader
-			.setUniform1i("u_texture", fboTex.getTextureId());
+			.setUniform1i("u_texture", FBO_TEX_SLOT);
 		m_renderer.draw(rectVAO, rectIb, texShader);
 
 

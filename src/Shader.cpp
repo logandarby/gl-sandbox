@@ -87,6 +87,10 @@ ShaderProgramSource Shader::parseShader(const std::string& fileName)
 			ss[(int)shaderType] << line << endl;
 		}
 	}
+	const size_t size = sizeof(ss) / sizeof(ss[0]);
+	if (size != 2) {
+		throw std::runtime_error(fmt::format("Shader file {} does not contain both vertex and fragment shaders", fileName));
+	}
 	return { ss[0].str(), ss[1].str() };
 }
 

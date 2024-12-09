@@ -1,6 +1,6 @@
 #pragma once
 
-// FBO with texture attatchment
+// FBO with texture & depth attatchment
 class FBOTex {
 public:
 	FBOTex(unsigned int width, unsigned int height);
@@ -9,6 +9,7 @@ public:
 	void bindFBO() const;
 	void bindTexture(unsigned int slot) const;
 	void unbind() const;
+	int readPixel(int x, int y);
 
 	inline unsigned int getTextureId() { return m_textureId; }
 

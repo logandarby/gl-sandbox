@@ -26,5 +26,7 @@ private:
 	void mouseOffsetCallback(MouseOffsetEvent& e);
 	void mouseScrollCallback(MouseScrollEvent& e);
 
+	void fboTest();
+
 	void lightingTest();
 };

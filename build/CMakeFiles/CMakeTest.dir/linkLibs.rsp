@@ -1,1 +1,0 @@
-  -L"C:/Users/Logan/Documents/Code/math/openGL-make/extern/stb"  extern/glm/glm/libglm.a extern/glfw/src/libglfw3.a lib/libglew32d.a extern/spdlog/libspdlogd.a extern/imgui/libimgui.a extern/glfw/src/libglfw3.a lib/libglew32d.a -lopengl32 -lglu32 -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 

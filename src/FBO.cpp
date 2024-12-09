@@ -12,9 +12,9 @@ FBOTex::FBOTex(const unsigned int width, const unsigned int height)
 	// Generate color buffer
 	GL_CALL(glGenTextures(1, &m_textureId));
 	GL_CALL(glBindTexture(GL_TEXTURE_2D, m_textureId));
-	GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+	GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
 		width, height, 0,
-		GL_RGB, GL_UNSIGNED_BYTE, NULL));
+		GL_RGBA, GL_UNSIGNED_BYTE, nullptr));
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
@@ -38,6 +38,7 @@ FBOTex::FBOTex(const unsigned int width, const unsigned int height)
 
 FBOTex::~FBOTex() {
 	unbind();
+	GL_CALL(glDeleteRenderbuffers(1, &m_depthBufferId));
 	GL_CALL(glDeleteFramebuffers(1, &m_fboId));
 	GL_CALL(glDeleteTextures(1, &m_textureId));
 }
@@ -56,3 +57,11 @@ void FBOTex::unbind() const {
 	GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 	GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
+
+int FBOTex::readPixel(int x, int y)
+	{
+		glReadBuffer(GL_COLOR_ATTACHMENT0);
+		int pixelData;
+		glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, &pixelData);
+		return pixelData;
+	}

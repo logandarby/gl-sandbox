@@ -4,7 +4,7 @@
         "name": "default",
         "description": "Default",
         "hidden": false,
-        "generator": "MinGW Makefiles",
+        "generator": "Ninja",
         "binaryDir": "${sourceDir}/build",
         "cacheVariables": {
             "CMAKE_BUILD_TYPE": "Debug",
