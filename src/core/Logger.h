@@ -1,17 +1,22 @@
 #pragma once
 
 #include <spdlog/spdlog.h>
+
 #include <memory>
 
-class Logger
-{
-public:
-	static void init();
-	static const std::shared_ptr<spdlog::logger> getCoreLogger() { return m_coreLogger; }
-	static const std::shared_ptr<spdlog::logger> getOpenGlLogger() { return m_openGlLogger; }
-private:
-	static std::shared_ptr<spdlog::logger> m_coreLogger;
-	static std::shared_ptr<spdlog::logger> m_openGlLogger;
+class Logger {
+   public:
+    static void init();
+    static const std::shared_ptr<spdlog::logger> getCoreLogger() {
+        return m_coreLogger;
+    }
+    static const std::shared_ptr<spdlog::logger> getOpenGlLogger() {
+        return m_openGlLogger;
+    }
+
+   private:
+    static std::shared_ptr<spdlog::logger> m_coreLogger;
+    static std::shared_ptr<spdlog::logger> m_openGlLogger;
 };
 
 // These macros should be used to log-- they can be disabled with release builds
@@ -36,4 +41,4 @@ private:
 #define LOG_GL_WARN(...)
 #define LOG_GL_INFO(...)
 #define LOG_GL_TRACE(...)
-#endif // _DEBUG
+#endif  // _DEBUG

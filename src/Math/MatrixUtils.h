@@ -5,9 +5,8 @@
 
 namespace Math {
 
-	static glm::mat3 getNormalMatrix(glm::mat4& modelMatrix) {
-		return glm::mat3(glm::transpose(glm::inverse(modelMatrix)));
-	}
-
+static glm::mat3 getNormalMatrix(glm::mat4& modelMatrix) {
+    return glm::mat3(glm::transpose(glm::inverse(modelMatrix)));
 }
 
+}  // namespace Math

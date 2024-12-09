@@ -1,52 +1,58 @@
 #pragma once
 
-#include <string>
-#include <unordered_map>
-#include <glm/glm.hpp>
-#include <memory>
-#include "Scene/Light.h"
-#include "Scene/Material.h"
 #include <spdlog/fmt/fmt.h>
 
+#include <glm/glm.hpp>
+#include <memory>
+#include <string>
+#include <unordered_map>
+
+#include "Scene/Light.h"
+#include "Scene/Material.h"
+
 struct ShaderProgramSource {
-	std::string vertexSource;
-	std::string fragmentSource;
+    std::string vertexSource;
+    std::string fragmentSource;
 };
 
 class Shader {
-public:
-	Shader(const std::string& fileName);
-	~Shader();
+   public:
+    Shader(const std::string& fileName);
+    ~Shader();
 
-	void bind() const;
-	void unbind() const;
+    void bind() const;
+    void unbind() const;
 
-	// Set struct Uniforms
-	Shader& setLight(const std::string& name, const DirectionalLight& light);
-	Shader& setLight(const std::string& name, const PointLight& light);
-	template <typename T> // Where T is a material
-	Shader& setMaterial(const std::string& name, const T& material);
-	Shader& setMVP(const std::string& name, const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection);
+    // Set struct Uniforms
+    Shader& setLight(const std::string& name, const DirectionalLight& light);
+    Shader& setLight(const std::string& name, const PointLight& light);
+    template <typename T>  // Where T is a material
+    Shader& setMaterial(const std::string& name, const T& material);
+    Shader& setMVP(const std::string& name, const glm::mat4& model,
+                   const glm::mat4& view, const glm::mat4& projection);
 
-	// Set primitive Uniforms
-	Shader& setUniform4f(const std::string& name, float v0, float v1, float v2, float v3);
-	Shader& setUniform4f(const std::string& name, const glm::vec4& v);
-	Shader& setUniform3f(const std::string& name, float v0, float v1, float v2);
-	Shader& setUniform3f(const std::string& name, const glm::vec3& v);
-	Shader& setUniform1i(const std::string& name, int i);
-	Shader& setUniform1f(const std::string& name, float i);
-	Shader& setUniformMat4(const std::string& name, const glm::mat4& mat);
-	Shader& setUniformMat3(const std::string& name, const glm::mat3& mat);
+    // Set primitive Uniforms
+    Shader& setUniform4f(const std::string& name, float v0, float v1, float v2,
+                         float v3);
+    Shader& setUniform4f(const std::string& name, const glm::vec4& v);
+    Shader& setUniform3f(const std::string& name, float v0, float v1, float v2);
+    Shader& setUniform3f(const std::string& name, const glm::vec3& v);
+    Shader& setUniform1i(const std::string& name, int i);
+    Shader& setUniform1f(const std::string& name, float i);
+    Shader& setUniformMat4(const std::string& name, const glm::mat4& mat);
+    Shader& setUniformMat3(const std::string& name, const glm::mat3& mat);
 
-	//void setUniform(std::shared_ptr<Uniform> uniform);
-	unsigned int getRenderer() { return m_rendererId;  }
-private:
-	unsigned int m_rendererId;
-	const std::string m_filePath;
-	std::unordered_map<std::string, int> m_locationMap;
+    // void setUniform(std::shared_ptr<Uniform> uniform);
+    unsigned int getRenderer() { return m_rendererId; }
 
-	static unsigned int createShader(const ShaderProgramSource& source);
-	static unsigned int compileShader(const unsigned int shaderType, const std::string& source);
-	static ShaderProgramSource parseShader(const std::string& fileName);
-	int getUniformLocation(const std::string& name);
+   private:
+    unsigned int m_rendererId;
+    const std::string m_filePath;
+    std::unordered_map<std::string, int> m_locationMap;
+
+    static unsigned int createShader(const ShaderProgramSource& source);
+    static unsigned int compileShader(const unsigned int shaderType,
+                                      const std::string& source);
+    static ShaderProgramSource parseShader(const std::string& fileName);
+    int getUniformLocation(const std::string& name);
 };
