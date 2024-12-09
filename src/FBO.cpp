@@ -2,8 +2,8 @@
 
 #include "core/GLCore.h"
 
-FBOTex::FBOTex(const unsigned int width, const unsigned int height)
-    : m_width(width), m_height(height) {
+FBOTex::FBOTex(const FBOSpec& spec)
+    : m_width(spec.width), m_height(spec.height) {
     // Generate FBO
     GL_CALL(glGenFramebuffers(1, &m_fboId));
     bindFBO();
@@ -11,14 +11,19 @@ FBOTex::FBOTex(const unsigned int width, const unsigned int height)
     // Generate color buffer
     GL_CALL(glGenTextures(1, &m_textureId));
     GL_CALL(glBindTexture(GL_TEXTURE_2D, m_textureId));
-    GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA,
-                         GL_UNSIGNED_BYTE, nullptr));
-    GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-    GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+
+    GL_CALL(
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, spec.minSampler));
+    GL_CALL(
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, spec.magSampler));
     GL_CALL(
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
     GL_CALL(
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+
+    GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_width, m_height, 0,
+                         GL_RGBA, GL_UNSIGNED_BYTE, nullptr));
+
     GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                                    GL_TEXTURE_2D, m_textureId, 0));
 
@@ -49,7 +54,7 @@ FBOTex::~FBOTex() {
 
 void FBOTex::bindFBO() const {
     GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, m_fboId));
-    // GL_CALL(glViewport(0, 0, m_width, m_height));
+    GL_CALL(glViewport(0, 0, m_width, m_height));
 }
 
 void FBOTex::bindTexture(const unsigned int slot) const {

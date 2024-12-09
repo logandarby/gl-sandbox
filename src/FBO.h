@@ -1,9 +1,18 @@
 #pragma once
 
+#include "Core/GLCore.h"
+
+struct FBOSpec {
+    unsigned int width;
+    unsigned int height;
+    unsigned int magSampler = GL_LINEAR;
+    unsigned int minSampler = GL_LINEAR;
+};
+
 // FBO with texture & depth attatchment
 class FBOTex {
    public:
-    FBOTex(unsigned int width, unsigned int height);
+    FBOTex(const FBOSpec& spec);
     ~FBOTex();
 
     void bindFBO() const;

@@ -123,7 +123,12 @@ Application::Application(const int width, const int height,
 void Application::run() { lightingTest(); }
 
 void Application::lightingTest() {
-    FBOTex fboTex(m_width, m_height);
+    const unsigned int DOWNSAMPLE = 3;
+
+    FBOTex fboTex({.width = static_cast<unsigned int>(m_width) / DOWNSAMPLE,
+                   .height = static_cast<unsigned int>(m_height) / DOWNSAMPLE,
+                   .magSampler = GL_NEAREST,
+                   .minSampler = GL_NEAREST});
 
     // Rectangle
     RectangleModel2D rect;
@@ -189,11 +194,10 @@ void Application::lightingTest() {
     tex.bind(TEXTURE_SLOT);
     specularTex.bind(SPECULAR_SLOT);
     skyboxTex.bind(SKYBOX_SLOT);
-    // fboTex.bindTexture(FBO_TEX_SLOT);
     Shader litTextureShader(RESOURCES_PATH "/shaders/specTexture.glsl");
     Shader colorShader(RESOURCES_PATH "/shaders/color3d.glsl");
     Shader skyboxShader(RESOURCES_PATH "/shaders/skyboxShader.glsl");
-    Shader texShader(RESOURCES_PATH "/shaders/framebuffer.glsl");
+    Shader fboShader(RESOURCES_PATH "/shaders/dither.glsl");
 
     glm::mat4 projection(1.0f);
     projection = glm::perspective(
@@ -296,9 +300,14 @@ void Application::lightingTest() {
         fboTex.unbind();
         fboTex.bindTexture(FBO_TEX_SLOT);
 
-        texShader.bind();
-        texShader.setUniform1i("u_texture", FBO_TEX_SLOT);
-        m_renderer.draw(rectVAO, rectIb, texShader);
+        fboShader.bind();
+        fboShader.setUniform1i("u_texture", FBO_TEX_SLOT)
+            .setUniform2f("u_resolution", glm::vec2(m_width / DOWNSAMPLE,
+                                                    m_height / DOWNSAMPLE));
+
+        GL_CALL(glViewport(0, 0, m_width, m_height));
+
+        m_renderer.draw(rectVAO, rectIb, fboShader);
     });
 }
 
@@ -331,7 +340,8 @@ void Application::fboTest() {
     IndexBuffer rectIb(rect.m_indices.data(),
                        static_cast<unsigned int>(rect.m_indices.size()));
 
-    FBOTex fboTex(m_width, m_height);
+    FBOTex fboTex({.width = static_cast<unsigned int>(m_width),
+                   .height = static_cast<unsigned int>(m_height)});
     Shader fboShader(RESOURCES_PATH "/shaders/framebuffer.glsl");
 
     m_window.whileOpen([&]() -> void {

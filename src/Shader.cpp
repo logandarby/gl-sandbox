@@ -111,6 +111,12 @@ Shader& Shader::setUniform3f(const std::string& name, float v0, float v1,
     return *this;
 }
 
+Shader& Shader::setUniform2f(const std::string& name, const glm::vec2& v) {
+    const int location = getUniformLocation(name);
+    GL_CALL(glUniform2f(location, v.x, v.y));
+    return *this;
+}
+
 Shader& Shader::setUniform1i(const std::string& name, const int i) {
     const int location = getUniformLocation(name);
     GL_CALL(glUniform1i(location, i));
