@@ -23,8 +23,9 @@ in vec2 v_position;
 uniform sampler2D u_texture;
 uniform vec2 u_resolution;
 uniform float u_spread = 0.25;
-uniform float u_colorCount = 4;
+uniform int u_enable;
 
+const float colorCount = 4;
 const vec3 palette[4] = vec3[](
     vec3(110, 131, 135) / 255.0,
     vec3(164, 184, 196) / 255.0,
@@ -50,8 +51,6 @@ const int bayer8[8 * 8] = int[] (
     63, 31, 55, 23, 61, 29, 53, 21
 );
 
-const int thresholdDim = 4;
-
 float getBayer4(int x, int y) {
     return float(bayer4[(x % 4) + (y % 4) * 4]) * (1.0f / 16.0f) - 0.5;
 }
@@ -70,12 +69,21 @@ void makeGreyscale(inout vec4 color) {
     color = vec4(grey, grey, grey, color.a);
 }
 
+void addDitherNoise(inout vec4 color, in vec2 screenCoord, in float spread) {
+    float noise = getBayer8(int(screenCoord.x), int(screenCoord.y));
+    color += spread * noise;
+}
+
 void main() {
-    vec2 screenCord = u_resolution * v_texCoord;
+    if (u_enable == 0) {
+        FragColor = texture(u_texture, v_texCoord);
+        return;
+    }
+    vec2 screenCoord = u_resolution * v_texCoord;
     vec4 color = texture(u_texture, v_texCoord);
-    float noise = getBayer8(int(screenCord.x), int(screenCord.y));
+    addDitherNoise(color, screenCoord, u_spread);
     makeGreyscale(color);
-    quantizeColor(color, u_colorCount);
-    color = vec4(palette[int(color.r * (u_colorCount))], 1.0);
-    FragColor = color + u_spread * noise;
+    quantizeColor(color, colorCount);
+    color = vec4(palette[min(int(color.r * (colorCount - 1)), 3)], 1.0);
+    FragColor = color;
 }

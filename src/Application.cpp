@@ -123,7 +123,8 @@ Application::Application(const int width, const int height,
 void Application::run() { lightingTest(); }
 
 void Application::lightingTest() {
-    const unsigned int DOWNSAMPLE = 3;
+    const unsigned int DOWNSAMPLE = 4;
+    bool isDither = true;
 
     FBOTex fboTex({.width = static_cast<unsigned int>(m_width) / DOWNSAMPLE,
                    .height = static_cast<unsigned int>(m_height) / DOWNSAMPLE,
@@ -226,6 +227,8 @@ void Application::lightingTest() {
         .shininess = 32,
     };
 
+    float spread = 0.05f;
+
     m_window.whileOpen([&]() -> void {
         fboTex.bindFBO();
 
@@ -236,6 +239,9 @@ void Application::lightingTest() {
             ImGui::Begin("Debug");
             ImGui::Text(
                 fmt::format("Framerate {}", ImGui::GetIO().Framerate).c_str());
+            ImGui::Text("Dither");
+            ImGui::SliderFloat("Spread", &spread, 0.0f, 0.4f);
+            ImGui::Checkbox("Enable Dither", &isDither);
             ImGui::Text("Light");
             ImGui::SliderFloat3("Light Diffuse", &light.diffuse[0], 0.0f, 1.0f);
             ImGui::SliderFloat3("Light Specular", &light.specular[0], 0.0f,
@@ -302,6 +308,8 @@ void Application::lightingTest() {
 
         fboShader.bind();
         fboShader.setUniform1i("u_texture", FBO_TEX_SLOT)
+            .setUniform1i("u_enable", isDither)
+            .setUniform1f("u_spread", spread)
             .setUniform2f("u_resolution", glm::vec2(m_width / DOWNSAMPLE,
                                                     m_height / DOWNSAMPLE));
 
