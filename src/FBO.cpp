@@ -62,6 +62,10 @@ void FBOTex::unbind() const {
     GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
+void FBOTex::setViewport() const {
+    GL_CALL(glViewport(0, 0, m_width, m_height));
+}
+
 int FBOTex::readPixel(int x, int y) {
     glReadBuffer(GL_COLOR_ATTACHMENT0);
     int pixelData;

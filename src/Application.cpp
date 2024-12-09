@@ -120,69 +120,7 @@ Application::Application(const int width, const int height,
     });
 }
 
-void Application::run() {
-    lightingTest();
-    // fboTest();
-}
-
-void Application::fboTest() {
-    // Cube
-    CubeModel cube;
-    VertexArray cubeVAO;
-    cubeVAO.addBuffer(std::make_shared<VertexBuffer>(cube.m_points.data(),
-                                                     sizeof(cube.m_points)),
-                      std::make_shared<BufferLayout>(
-                          BufferLayout().withLayout<PositionWithTexture3D>()));
-    IndexBuffer cubeIb(cube.m_indices.data(),
-                       static_cast<unsigned int>(cube.m_indices.size()));
-
-    const glm::mat4 projection(glm::perspective(
-        glm::radians(45.0f), (float)m_width / (float)m_height, 0.1f, 100.0f));
-
-    Shader colorShader(RESOURCES_PATH "/shaders/color3d.glsl");
-
-    // FBO Rect
-    const unsigned int FBO_SLOT = 0;
-    RectangleModel2D rect;
-    VertexArray rectVAO;
-    rectVAO.addBuffer(std::make_shared<VertexBuffer>(rect.m_points.data(),
-                                                     sizeof(rect.m_points)),
-                      std::make_shared<BufferLayout>(
-                          BufferLayout().withLayout<PositionWithTexture2D>()));
-    IndexBuffer rectIb(rect.m_indices.data(),
-                       static_cast<unsigned int>(rect.m_indices.size()));
-
-    FBOTex fboTex(m_width, m_height);
-    Shader fboShader(RESOURCES_PATH "/shaders/framebuffer.glsl");
-
-    m_window.whileOpen([&]() -> void {
-        fboTex.bindFBO();
-
-        m_renderer.clear();
-        GL_CALL(glEnable(GL_DEPTH_TEST));
-
-        cube.modelMatrix = glm::rotate(cube.modelMatrix, glm::radians(2.0f),
-                                       glm::vec3(1.0f, 1.0f, 1.0f));
-        m_camera.move(glm::vec3(-dx, -dy, -dz));
-
-        colorShader.bind();
-        colorShader.setUniform4f("u_color", glm::vec4(0.2f, 0.8f, 0.6f, 1.0f))
-            .setUniformMat4("u_model", cube.modelMatrix)
-            .setUniformMat4("u_view", m_camera.getViewMatrix())
-            .setUniformMat4("u_projection", projection);
-
-        m_renderer.draw(cubeVAO, cubeIb, colorShader);
-
-        GL_CALL(glDisable(GL_DEPTH_TEST));
-
-        fboTex.unbind();
-        fboTex.bindTexture(FBO_SLOT);
-
-        fboShader.bind();
-        fboShader.setUniform1i("u_texture", FBO_SLOT);
-        m_renderer.draw(rectVAO, rectIb, fboShader);
-    });
-}
+void Application::run() { lightingTest(); }
 
 void Application::lightingTest() {
     FBOTex fboTex(m_width, m_height);
@@ -361,5 +299,66 @@ void Application::lightingTest() {
         texShader.bind();
         texShader.setUniform1i("u_texture", FBO_TEX_SLOT);
         m_renderer.draw(rectVAO, rectIb, texShader);
+    });
+}
+
+// FBO Test
+
+void Application::fboTest() {
+    // Cube
+    CubeModel cube;
+    VertexArray cubeVAO;
+    cubeVAO.addBuffer(std::make_shared<VertexBuffer>(cube.m_points.data(),
+                                                     sizeof(cube.m_points)),
+                      std::make_shared<BufferLayout>(
+                          BufferLayout().withLayout<PositionWithTexture3D>()));
+    IndexBuffer cubeIb(cube.m_indices.data(),
+                       static_cast<unsigned int>(cube.m_indices.size()));
+
+    const glm::mat4 projection(glm::perspective(
+        glm::radians(45.0f), (float)m_width / (float)m_height, 0.1f, 100.0f));
+
+    Shader colorShader(RESOURCES_PATH "/shaders/color3d.glsl");
+
+    // FBO Rect
+    const unsigned int FBO_SLOT = 0;
+    RectangleModel2D rect;
+    VertexArray rectVAO;
+    rectVAO.addBuffer(std::make_shared<VertexBuffer>(rect.m_points.data(),
+                                                     sizeof(rect.m_points)),
+                      std::make_shared<BufferLayout>(
+                          BufferLayout().withLayout<PositionWithTexture2D>()));
+    IndexBuffer rectIb(rect.m_indices.data(),
+                       static_cast<unsigned int>(rect.m_indices.size()));
+
+    FBOTex fboTex(m_width, m_height);
+    Shader fboShader(RESOURCES_PATH "/shaders/framebuffer.glsl");
+
+    m_window.whileOpen([&]() -> void {
+        fboTex.bindFBO();
+
+        m_renderer.clear();
+        GL_CALL(glEnable(GL_DEPTH_TEST));
+
+        cube.modelMatrix = glm::rotate(cube.modelMatrix, glm::radians(2.0f),
+                                       glm::vec3(1.0f, 1.0f, 1.0f));
+        m_camera.move(glm::vec3(-dx, -dy, -dz));
+
+        colorShader.bind();
+        colorShader.setUniform4f("u_color", glm::vec4(0.2f, 0.8f, 0.6f, 1.0f))
+            .setUniformMat4("u_model", cube.modelMatrix)
+            .setUniformMat4("u_view", m_camera.getViewMatrix())
+            .setUniformMat4("u_projection", projection);
+
+        m_renderer.draw(cubeVAO, cubeIb, colorShader);
+
+        GL_CALL(glDisable(GL_DEPTH_TEST));
+
+        fboTex.unbind();
+        fboTex.bindTexture(FBO_SLOT);
+
+        fboShader.bind();
+        fboShader.setUniform1i("u_texture", FBO_SLOT);
+        m_renderer.draw(rectVAO, rectIb, fboShader);
     });
 }

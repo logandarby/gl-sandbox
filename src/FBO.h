@@ -10,6 +10,7 @@ class FBOTex {
     void bindTexture(unsigned int slot) const;
     void unbind() const;
     int readPixel(int x, int y);
+    void setViewport() const;
 
     inline unsigned int getTextureId() { return m_textureId; }
 

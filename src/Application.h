@@ -30,7 +30,8 @@ class Application {
     void mouseOffsetCallback(MouseOffsetEvent& e);
     void mouseScrollCallback(MouseScrollEvent& e);
 
-    void fboTest();
-
     void lightingTest();
+
+    // Legacy Test
+    void fboTest();
 };
