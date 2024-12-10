@@ -16,7 +16,7 @@
 #define GL_CALL(x)          \
     GLCore::glClearError(); \
     x;                      \
-    ASSERT(GLCore::glLogError(#x, __FILE__, __LINE__));
+    CORE_ASSERT(GLCore::glLogError(#x, __FILE__, __LINE__));
 
 namespace GLCore {
 void glClearError();

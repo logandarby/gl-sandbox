@@ -18,12 +18,18 @@
 
 #include "Logger.h"
 
+// Define Common Types
+template <typename T>
+using Ref = std::shared_ptr<T>;
+template <typename T>
+using WeakRef = std::weak_ptr<T>;
+
 // Define Common Macros
 #ifdef _DEBUG
-#define ASSERT(x) \
+#define CORE_ASSERT(x) \
     if (!(x)) __debugbreak();
 #else
-#define ASSERT(x)
+#define CORE_ASSERT(x)
 #endif  // !_DEBUG
 
 #define BIT(x) (1 << x)

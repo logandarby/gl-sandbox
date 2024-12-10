@@ -3,27 +3,26 @@
 #include <imgui.h>
 
 #include "Events/Event.h"
-#include "FBO.h"
-#include "IndexBuffer.h"
 #include "Math/MatrixUtils.h"
 #include "Model/CubeModel.h"
 #include "Model/NormalCubeModel.h"
 #include "Model/RectangleModel.h"
+#include "Renderer/FBO.h"
+#include "Renderer/IndexBuffer.h"
+#include "Renderer/Shader.h"
+#include "Renderer/VertexArray.h"
+#include "Renderer/VertexBuffer.h"
 #include "Scene/Light.h"
 #include "Scene/Material.h"
-#include "Shader.h"
 #include "Texture/CubemapTexture.h"
 #include "Texture/Texture2D.h"
-#include "VertexArray.h"
-#include "VertexBuffer.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/vec3.hpp"
 
-static const float POS_DELTA = 0.1f;
-static const double MOUSE_SENSITIVITY = 0.08;
-static float dx = 0, dy = 0, dz = 0;
-static double drx = 0, dry = 0;
+static const float DEFAULT_MOVE_SPEED = 0.1f;
+static const double DEFAULT_MOUSE_SENSITIVITY = 0.08;
+
 static const glm::vec3 cubePositions[] = {
     glm::vec3(0.0f, 0.0f, 0.0f),    glm::vec3(2.0f, 5.0f, -15.0f),
     glm::vec3(-1.5f, -2.2f, -2.5f), glm::vec3(-3.8f, -2.0f, -12.3f),
@@ -31,42 +30,6 @@ static const glm::vec3 cubePositions[] = {
     glm::vec3(1.3f, -2.0f, -2.5f),  glm::vec3(1.5f, 2.0f, -2.5f),
     glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f)};
 
-Application &Application::getInstance(const int width, const int height,
-                                      const std::string name) {
-    static Application app(width, height, name);
-    return app;
-}
-
-void move(const int keycode, const float delta) {
-    switch (keycode) {
-        case GLFW_KEY_W:
-            dz += delta;
-            break;
-        case GLFW_KEY_A:
-            dx -= delta;
-            break;
-        case GLFW_KEY_S:
-            dz -= delta;
-            break;
-        case GLFW_KEY_D:
-            dx += delta;
-            break;
-        case GLFW_KEY_SPACE:
-            dy += delta;
-            break;
-        case GLFW_KEY_LEFT_SHIFT:
-            dy -= delta;
-            break;
-    }
-}
-
-void Application::keyReleaseCallback(KeyReleaseEvent &e) {
-    if (!m_isMenuOpen) {
-        move(e.keycode, POS_DELTA);
-    }
-}
-
-// Based on the key, modifies dx or dy
 void Application::keyPressCallback(KeyPressEvent &e) {
     switch (e.keycode) {
         case GLFW_KEY_Q:
@@ -81,43 +44,29 @@ void Application::keyPressCallback(KeyPressEvent &e) {
             }
             break;
     }
-    if (!m_isMenuOpen) {
-        move(e.keycode, -POS_DELTA);
-    }
 }
 
-void Application::mouseScrollCallback(MouseScrollEvent &e) {}
-
-void Application::mouseOffsetCallback(MouseOffsetEvent &e) {
-    if (m_isMenuOpen) return;
-    drx = e.xOffset * -MOUSE_SENSITIVITY;
-    dry = e.yOffset * -MOUSE_SENSITIVITY;
-    m_camera.rotate(drx, dry);
+Application::Application(const ApplicationSpec &spec)
+    : m_width{spec.width},
+      m_height{spec.height},
+      m_appName{spec.name},
+      m_window{spec.width, spec.height, spec.name},
+      m_cameraController{
+          CameraSpecification{.viewportWidth = spec.width,
+                              .viewportHeight = spec.height},
+          CameraControllerSpec{.moveSpeed = DEFAULT_MOVE_SPEED,
+                               .rotSpeed = DEFAULT_MOUSE_SENSITIVITY}} {
+    LOG_CORE_INFO("Application created successfully");
+    m_window.setEventCallback([&](Event &e) -> void { onEvent(e); });
 }
 
-Application::Application(const int width, const int height,
-                         const std::string name)
-    : m_width{width},
-      m_height{height},
-      m_appName{name},
-      m_window{width, height, name},
-      m_renderer{},
-      m_camera{} {
-    LOG_CORE_INFO("Window created successfully");
-    m_window.setEventCallback([&](Event &e) -> void {
-        Event::dispatch<KeyPressEvent>(
-            e, EventType::KeyPress,
-            BIND_EVENT_FUNC(Application::keyPressCallback));
-        Event::dispatch<KeyReleaseEvent>(
-            e, EventType::KeyRelease,
-            BIND_EVENT_FUNC(Application::keyReleaseCallback));
-        Event::dispatch<MouseScrollEvent>(
-            e, EventType::MouseScroll,
-            BIND_EVENT_FUNC(Application::mouseScrollCallback));
-        Event::dispatch<MouseOffsetEvent>(
-            e, EventType::MouseOffset,
-            BIND_EVENT_FUNC(Application::mouseOffsetCallback));
-    });
+void Application::onEvent(Event &e) {
+    EventDispatcher dispatcher(e);
+
+    dispatcher.dispatch<KeyPressEvent>(
+        BIND_EVENT_FUNC(Application::keyPressCallback));
+
+    m_cameraController.onEvent(e);
 }
 
 void Application::run() { lightingTest(); }
@@ -195,14 +144,11 @@ void Application::lightingTest() {
     tex.bind(TEXTURE_SLOT);
     specularTex.bind(SPECULAR_SLOT);
     skyboxTex.bind(SKYBOX_SLOT);
+    fboTex.bindTexture(FBO_TEX_SLOT);
     Shader litTextureShader(RESOURCES_PATH "/shaders/specTexture.glsl");
     Shader colorShader(RESOURCES_PATH "/shaders/color3d.glsl");
     Shader skyboxShader(RESOURCES_PATH "/shaders/skyboxShader.glsl");
     Shader fboShader(RESOURCES_PATH "/shaders/dither.glsl");
-
-    glm::mat4 projection(1.0f);
-    projection = glm::perspective(
-        glm::radians(45.0f), (float)m_width / (float)m_height, 0.1f, 100.0f);
 
     // Light
     DirectionalLight light{
@@ -229,10 +175,12 @@ void Application::lightingTest() {
 
     float spread = 0.05f;
 
+    auto &camera = m_cameraController.getCamera();
+
     m_window.whileOpen([&]() -> void {
         fboTex.bindFBO();
 
-        m_renderer.clear();
+        Renderer::clear();
         GL_CALL(glEnable(GL_DEPTH_TEST));
 
         if (m_isMenuOpen) {
@@ -259,13 +207,13 @@ void Application::lightingTest() {
 
         cube.modelMatrix = glm::rotate(cube.modelMatrix, glm::radians(2.0f),
                                        glm::vec3(1.0f, 1.0f, 1.0f));
-        m_camera.move(glm::vec3(-dx, -dy, -dz));
+        m_cameraController.onUpdate();
 
         litTextureShader.bind();
         litTextureShader.setUniform1i("u_texture", 0)
-            .setUniform3f("u_viewPos", m_camera.getPos())
-            .setMVP("u_mvp", cube.modelMatrix, m_camera.getViewMatrix(),
-                    projection)
+            .setUniform3f("u_viewPos", camera.getPos())
+            .setMVP("u_mvp", cube.modelMatrix, camera.getViewMatrix(),
+                    camera.getProjectionMatrix())
             .setLight("u_pointLight", ptLight)
             .setLight("u_dirLight", light)
             .setMaterial("u_material", material);
@@ -282,24 +230,25 @@ void Application::lightingTest() {
                                     Math::getNormalMatrix(model));
             }
 
-            m_renderer.draw(vao, ib, litTextureShader);
+            Renderer::draw(vao, ib, litTextureShader);
         }
 
         colorShader.bind();
         colorShader.setUniform4f("u_color", glm::vec4(light.diffuse, 1.0f))
             .setUniformMat4("u_model", lightingCube.modelMatrix)
-            .setUniformMat4("u_view", m_camera.getViewMatrix())
-            .setUniformMat4("u_projection", projection);
+            .setUniformMat4("u_view", camera.getViewMatrix())
+            .setUniformMat4("u_projection", camera.getProjectionMatrix());
 
-        m_renderer.draw(lightVAO, lightingIb, colorShader);
+        Renderer::draw(lightVAO, lightingIb, colorShader);
 
         skyboxShader.bind();
         skyboxShader
             .setMVP("u_mvp", glm::mat4(1.0f),
-                    glm::mat4(glm::mat3(m_camera.getViewMatrix())), projection)
+                    glm::mat4(glm::mat3(camera.getViewMatrix())),
+                    camera.getProjectionMatrix())
             .setUniform1i("u_skybox", SKYBOX_SLOT);
 
-        m_renderer.draw(skyboxVAO, skyboxIb, skyboxShader);
+        Renderer::draw(skyboxVAO, skyboxIb, skyboxShader);
 
         GL_CALL(glDisable(GL_DEPTH_TEST));
 
@@ -315,13 +264,15 @@ void Application::lightingTest() {
 
         GL_CALL(glViewport(0, 0, m_width, m_height));
 
-        m_renderer.draw(rectVAO, rectIb, fboShader);
+        Renderer::draw(rectVAO, rectIb, fboShader);
     });
 }
 
 // FBO Test
 
 void Application::fboTest() {
+    const Camera &camera = m_cameraController.getCamera();
+
     // Cube
     CubeModel cube;
     VertexArray cubeVAO;
@@ -355,20 +306,20 @@ void Application::fboTest() {
     m_window.whileOpen([&]() -> void {
         fboTex.bindFBO();
 
-        m_renderer.clear();
+        Renderer::clear();
         GL_CALL(glEnable(GL_DEPTH_TEST));
 
         cube.modelMatrix = glm::rotate(cube.modelMatrix, glm::radians(2.0f),
                                        glm::vec3(1.0f, 1.0f, 1.0f));
-        m_camera.move(glm::vec3(-dx, -dy, -dz));
+        m_cameraController.onUpdate();
 
         colorShader.bind();
         colorShader.setUniform4f("u_color", glm::vec4(0.2f, 0.8f, 0.6f, 1.0f))
             .setUniformMat4("u_model", cube.modelMatrix)
-            .setUniformMat4("u_view", m_camera.getViewMatrix())
+            .setUniformMat4("u_view", camera.getViewMatrix())
             .setUniformMat4("u_projection", projection);
 
-        m_renderer.draw(cubeVAO, cubeIb, colorShader);
+        Renderer::draw(cubeVAO, cubeIb, colorShader);
 
         GL_CALL(glDisable(GL_DEPTH_TEST));
 
@@ -377,6 +328,6 @@ void Application::fboTest() {
 
         fboShader.bind();
         fboShader.setUniform1i("u_texture", FBO_SLOT);
-        m_renderer.draw(rectVAO, rectIb, fboShader);
+        Renderer::draw(rectVAO, rectIb, fboShader);
     });
 }

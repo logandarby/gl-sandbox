@@ -62,5 +62,6 @@ endif()
 
 target_sources("${CMAKE_PROJECT_NAME}" PRIVATE ${MY_SOURCES} )
 target_include_directories("${CMAKE_PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/glew-2.1.0/include")
+target_include_directories("${CMAKE_PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
 target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE glm glfw glew_s spdlog imgui stb)
 

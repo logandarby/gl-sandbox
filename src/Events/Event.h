@@ -23,25 +23,14 @@ enum EventType { EVENT_TYPE_TABLE };
 class Event {
    public:
     bool isHandled;
+    virtual ~Event() = default;
 
-    // Dispatches func on event e only if it is the correct type
-    template <typename T>
-    static bool dispatch(Event& e, EventType type,
-                         std::function<void(T&)> func) {
-        static_assert(std::is_base_of_v<Event, T> == true);
-        if (e.isType(type)) {
-            func(static_cast<T&>(e));
-            e.isHandled = true;
-            return true;
-        }
-        return false;
-    }
-
-    bool isInCategory(EventCategory category) const {
+    inline bool isInCategory(EventCategory category) const {
         return category & m_category;
     }
-    std::string toString() const;
     inline bool isType(EventType type) { return m_type == type; }
+
+    std::string toString() const;
 
    protected:
     Event(EventType type, EventCategory category)
@@ -51,6 +40,30 @@ class Event {
 
    private:
     static const char* EVENT_NAME[];
+};
+
+inline std::ostream& operator<<(std::ostream& os, const Event& e) {
+    return os << e.toString();
+}
+
+class EventDispatcher {
+   public:
+    EventDispatcher(Event& e) : m_event{e} {}
+
+    // Dispatches func on event e only if it is the correct type
+    template <typename T>
+    bool dispatch(std::function<void(T&)> func) {
+        static_assert(std::is_base_of_v<Event, T> == true);
+        if (dynamic_cast<T*>(&m_event)) {
+            func(static_cast<T&>(m_event));
+            m_event.isHandled = true;
+            return true;
+        }
+        return false;
+    }
+
+   private:
+    Event& m_event;
 };
 
 class KeyPressEvent : public Event {
@@ -97,7 +110,3 @@ class MouseOffsetEvent : public Event {
           xOffset{xOffset} {}
     const double yOffset, xOffset;
 };
-
-inline std::ostream& operator<<(std::ostream& os, const Event& e) {
-    return os << e.toString();
-}

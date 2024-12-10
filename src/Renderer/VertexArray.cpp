@@ -24,7 +24,7 @@ void VertexArray::addBuffer(const std::shared_ptr<VertexBuffer> vb,
     for (unsigned int i = 0; i < elements.size(); i++) {
         const auto& element = elements[i];
         GL_CALL(glEnableVertexAttribArray(i));
-        ASSERT(1 <= element.count && element.count <= 4);
+        CORE_ASSERT(1 <= element.count && element.count <= 4);
         GL_CALL(glVertexAttribPointer(i, element.count, element.type,
                                       element.normalized, bl->getStride(),
                                       reinterpret_cast<const void*>(offset)));

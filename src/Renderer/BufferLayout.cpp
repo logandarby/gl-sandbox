@@ -14,7 +14,7 @@ unsigned int BufferElement::getSizeOfType(const unsigned int type) {
         case GL_UNSIGNED_INT:
             return sizeof(unsigned int);
         default:
-            ASSERT(false);
+            CORE_ASSERT(false);
             return 0;
     }
 }

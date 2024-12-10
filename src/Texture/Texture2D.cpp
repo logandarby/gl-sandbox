@@ -31,7 +31,7 @@ Texture2D::~Texture2D() {
 }
 
 void Texture2D::bind(const unsigned int slot) const {
-    ASSERT(slot < MAX_TEXTURE_SLOTS);
+    CORE_ASSERT(slot < MAX_TEXTURE_SLOTS);
     GL_CALL(glActiveTexture(GL_TEXTURE0 + slot));
     GL_CALL(glBindTexture(GL_TEXTURE_2D, m_rendererId))
 }

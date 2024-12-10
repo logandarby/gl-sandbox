@@ -2,7 +2,7 @@
 
 #include <array>
 
-#include "../BufferLayout.h"
+#include "Renderer/BufferLayout.h"
 #include "glm/glm.hpp"
 
 struct CubeModel {

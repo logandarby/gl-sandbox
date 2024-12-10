@@ -1,6 +1,6 @@
 #include "Event.h"
 
-#define X(a) "b",
+#define X(a) #a,
 const char* Event::EVENT_NAME[] = {EVENT_TYPE_TABLE};
 #undef X
 
