@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Core/GLCore.h"
+#include "Renderer/RendererTypes.h"
 
 struct FBOSpec {
     unsigned int width;
     unsigned int height;
-    unsigned int magSampler = GL_LINEAR;
-    unsigned int minSampler = GL_LINEAR;
+    GL::MagFilter magSampler = GL::MagFilter::Linear;
+    GL::MagFilter minSampler = GL::MagFilter::Linear;
 };
 
 // FBO with texture & depth attatchment

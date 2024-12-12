@@ -1,18 +1,20 @@
 #include "MainWindow.h"
 
+#include "Core/GLCore.h"
+#include "Renderer/RendererTypes.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "imgui.h"
 
 namespace Utils {
-static const std::function<void(Event&)> EMPTY_EVENT_CALLBACK = [](Event& e) {};
-static void glfwErrorCallback(int error, const char* desc) {
+static const std::function<void(Event &)> EMPTY_EVENT_CALLBACK = [](Event &e) {};
+static void glfwErrorCallback(int error, const char *desc) {
     LOG_GL_ERR("GLEW Error: [{}]: {}", error, desc);
 }
-static WindowUserPtr& getUserPtr(GLFWwindow* window) {
-    return *static_cast<WindowUserPtr*>(glfwGetWindowUserPointer(window));
+static WindowUserPtr &getUserPtr(GLFWwindow *window) {
+    return *static_cast<WindowUserPtr *>(glfwGetWindowUserPointer(window));
 }
-}  // namespace Utils
+} // namespace Utils
 
 MainWindow::~MainWindow() {
     ImGui_ImplOpenGL3_Shutdown();
@@ -22,14 +24,12 @@ MainWindow::~MainWindow() {
     LOG_CORE_INFO("GLFW Window Destroyed");
 }
 
-MainWindow::MainWindow(const int width, const int height,
-                       const std::string& name)
-    : m_window(nullptr),
-      m_data({Utils::EMPTY_EVENT_CALLBACK}),
-      m_isRunning{false} {
+MainWindow::MainWindow(const int width, const int height, const std::string &name)
+    : m_window(nullptr), m_data({Utils::EMPTY_EVENT_CALLBACK}), m_isRunning{false} {
     glfwSetErrorCallback(Utils::glfwErrorCallback);
 
-    if (!glfwInit()) throw std::runtime_error("GLFW Could not initialize");
+    if (!glfwInit())
+        throw std::runtime_error("GLFW Could not initialize");
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -44,20 +44,18 @@ MainWindow::MainWindow(const int width, const int height,
     if (glewInit() != GLEW_OK) {
         throw std::runtime_error("Error intializing GLEW");
     }
-    LOG_GL_INFO("Using GL version {}", (char*)glGetString(GL_VERSION));
+    LOG_GL_INFO("Using GL version {}", (char *)glGetString(GL_VERSION));
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |=
-        ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
-    io.ConfigFlags |=
-        ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+    ImGuiIO &io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
 
     // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(
-        m_window, true);  // Second param install_callback=true will install
-                          // GLFW callbacks and chain to existing ones.
+    ImGui_ImplGlfw_InitForOpenGL(m_window,
+                                 true); // Second param install_callback=true will install
+                                        // GLFW callbacks and chain to existing ones.
     ImGui_ImplOpenGL3_Init();
 
     GL_CALL(glEnable(GL_BLEND));
@@ -66,7 +64,7 @@ MainWindow::MainWindow(const int width, const int height,
     GL_CALL(glDepthFunc(GL_LEQUAL));
 
     glfwSetWindowUserPointer(m_window, &m_data);
-    toggleCursorMode(CursorMode::Disabled);
+    toggleCursorMode(GL::CursorMode::Disabled);
     initEventHandling();
 
     m_isRunning = true;
@@ -74,49 +72,45 @@ MainWindow::MainWindow(const int width, const int height,
 }
 
 void MainWindow::initEventHandling() {
-    glfwSetKeyCallback(m_window, [](GLFWwindow* window, int key, int scancode,
-                                    int action, int mods) {
-        ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
-        WindowUserPtr& data = Utils::getUserPtr(window);
-        switch (action) {
-            case GLFW_PRESS: {
-                KeyPressEvent ep(key, mods);
-                data.eventCallback(ep);
-                break;
-            }
-            case GLFW_RELEASE: {
-                KeyReleaseEvent er(key, mods);
-                data.eventCallback(er);
-                break;
-            }
-        }
+    glfwSetKeyCallback(m_window,
+                       [](GLFWwindow *window, int key, int scancode, int action, int mods) {
+                           ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
+                           WindowUserPtr &data = Utils::getUserPtr(window);
+                           switch (action) {
+                           case GLFW_PRESS: {
+                               KeyPressEvent ep(key, mods);
+                               data.eventCallback(ep);
+                               break;
+                           }
+                           case GLFW_RELEASE: {
+                               KeyReleaseEvent er(key, mods);
+                               data.eventCallback(er);
+                               break;
+                           }
+                           }
+                       });
+    glfwSetScrollCallback(m_window, [](GLFWwindow *window, double xoffset, double yoffset) {
+        ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
+        WindowUserPtr &data = Utils::getUserPtr(window);
+        MouseScrollEvent e(xoffset, yoffset);
+        data.eventCallback(e);
     });
-    glfwSetScrollCallback(
-        m_window, [](GLFWwindow* window, double xoffset, double yoffset) {
-            ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
-            WindowUserPtr& data = Utils::getUserPtr(window);
-            MouseScrollEvent e(xoffset, yoffset);
-            data.eventCallback(e);
-        });
-    glfwSetCursorPosCallback(
-        m_window, [](GLFWwindow* window, double xpos, double ypos) {
-            ImGui_ImplGlfw_CursorPosCallback(window, xpos, ypos);
-            WindowUserPtr& data = Utils::getUserPtr(window);
-            MouseMoveEvent e(xpos, ypos);
-            data.eventCallback(e);
+    glfwSetCursorPosCallback(m_window, [](GLFWwindow *window, double xpos, double ypos) {
+        ImGui_ImplGlfw_CursorPosCallback(window, xpos, ypos);
+        WindowUserPtr &data = Utils::getUserPtr(window);
+        MouseMoveEvent e(xpos, ypos);
+        data.eventCallback(e);
 
-            const double xOffset = xpos - data.lastCursorX;
-            const double yOffset = ypos - data.lastCursorY;
-            MouseOffsetEvent offsetEvent(xOffset, yOffset);
-            data.eventCallback(offsetEvent);
-            data.lastCursorX = xpos;
-            data.lastCursorY = ypos;
-        });
+        const double xOffset = xpos - data.lastCursorX;
+        const double yOffset = ypos - data.lastCursorY;
+        MouseOffsetEvent offsetEvent(xOffset, yOffset);
+        data.eventCallback(offsetEvent);
+        data.lastCursorX = xpos;
+        data.lastCursorY = ypos;
+    });
 }
 
-bool MainWindow::isOpen() {
-    return !glfwWindowShouldClose(m_window) && m_isRunning;
-}
+bool MainWindow::isOpen() { return !glfwWindowShouldClose(m_window) && m_isRunning; }
 
 void MainWindow::whileOpen(std::function<void(void)> renderLoop) {
     while (isOpen()) {
@@ -139,6 +133,6 @@ void MainWindow::whileOpen(std::function<void(void)> renderLoop) {
 
 void MainWindow::destroy() { m_isRunning = false; }
 
-void MainWindow::toggleCursorMode(const CursorMode mode) {
-    glfwSetInputMode(m_window, GLFW_CURSOR, mode);
+void MainWindow::toggleCursorMode(const GL::CursorMode mode) {
+    glfwSetInputMode(m_window, GLFW_CURSOR, GL::getCursorMode(mode));
 }

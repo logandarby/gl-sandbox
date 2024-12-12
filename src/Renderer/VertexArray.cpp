@@ -3,9 +3,7 @@
 #include "core/GLCore.h"
 #include "renderer.h"
 
-VertexArray::VertexArray() : m_rendererId(0) {
-    GL_CALL(glGenVertexArrays(1, &m_rendererId));
-}
+VertexArray::VertexArray() : m_rendererId(0) { GL_CALL(glGenVertexArrays(1, &m_rendererId)); }
 
 VertexArray::~VertexArray() { GL_CALL(glDeleteVertexArrays(1, &m_rendererId)); }
 
@@ -25,9 +23,8 @@ void VertexArray::addBuffer(const std::shared_ptr<VertexBuffer> vb,
         const auto& element = elements[i];
         GL_CALL(glEnableVertexAttribArray(i));
         CORE_ASSERT(1 <= element.count && element.count <= 4);
-        GL_CALL(glVertexAttribPointer(i, element.count, element.type,
-                                      element.normalized, bl->getStride(),
-                                      reinterpret_cast<const void*>(offset)));
+        GL_CALL(glVertexAttribPointer(i, element.count, element.type, element.normalized,
+                                      bl->getStride(), reinterpret_cast<const void*>(offset)));
         GL_CALL(glEnableVertexAttribArray(0));
         offset += element.count * BufferElement::getSizeOfType(element.type);
     }

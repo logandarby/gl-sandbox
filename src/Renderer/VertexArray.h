@@ -9,8 +9,14 @@ class VertexArray {
     VertexArray();
     ~VertexArray();
 
-    void addBuffer(const std::shared_ptr<VertexBuffer> vb,
-                   const std::shared_ptr<BufferLayout> bl);
+    void addBuffer(const std::shared_ptr<VertexBuffer> vb, const std::shared_ptr<BufferLayout> bl);
+    static inline VertexArray withBuffer(const std::shared_ptr<VertexBuffer> vb,
+                                         const std::shared_ptr<BufferLayout> bl) {
+        VertexArray va;
+        va.addBuffer(vb, bl);
+        return va;
+    }
+
     void bind() const;
     void unbind() const;
 

@@ -1,6 +1,6 @@
 /*
-        Used to properly import GL - related libraries and
-        macros in their desired files
+    Used to properly import GL - related libraries and
+    macros in their desired cpp files
 */
 #pragma once
 
@@ -21,7 +21,4 @@
 namespace GLCore {
 void glClearError();
 bool glLogError(const char* function, const char* file, const int line);
-int getMaxTextureSlots();
-
-typedef unsigned int Sampler2D;
 }  // namespace GLCore

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../core/GLCore.h"
+#include "Renderer/Renderer.h"
 
 class Texture {
    public:
-    Texture() : MAX_TEXTURE_SLOTS(GLCore::getMaxTextureSlots()) {}
+    Texture() : MAX_TEXTURE_SLOTS(Renderer::getMaxTextureSlots()) {}
     ~Texture() = default;
 
     virtual void bind(unsigned int slot = 0) const = 0;
