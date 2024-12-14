@@ -11,7 +11,7 @@ struct FBOSpec {
 
 // FBO with texture & depth attatchment
 class FBOTex {
-   public:
+public:
     FBOTex(const FBOSpec& spec);
     ~FBOTex();
 
@@ -21,9 +21,11 @@ class FBOTex {
     int readPixel(int x, int y);
     void setViewport() const;
 
-    inline unsigned int getTextureId() { return m_textureId; }
+    inline unsigned int getTextureId() {
+        return m_textureId;
+    }
 
-   private:
+private:
     unsigned int m_fboId;
     unsigned int m_textureId;
     unsigned int m_depthBufferId;

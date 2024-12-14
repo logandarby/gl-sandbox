@@ -1,11 +1,10 @@
 #pragma once
 
+#include "Events/Event.h"
 #include <string>
 
-#include "Events/Event.h"
-
 class Scene {
-   public:
+public:
     Scene(std::string name) : m_name(name) {};
     virtual ~Scene() = default;
 
@@ -14,6 +13,6 @@ class Scene {
     virtual void onRender(const float timestep) = 0;
     virtual void onEvent(Event& event) {};
 
-   protected:
+protected:
     const std::string m_name;
 };

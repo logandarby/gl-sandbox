@@ -6,6 +6,7 @@
 #pragma once
 
 // Common libraries
+#include "Logger.h"
 #include <array>
 #include <fstream>
 #include <functional>
@@ -16,24 +17,24 @@
 #include <stdexcept>
 #include <string>
 
-#include "Logger.h"
-
 // Define Common Types
 template <typename T>
 using Ref = std::shared_ptr<T>;
 template <typename T>
 using WeakRef = std::weak_ptr<T>;
+template <typename T>
+using UniqueRef = std::unique_ptr<T>;
 
 // Define Common Macros
 #ifdef _DEBUG
-#define CORE_ASSERT(x) \
-    if (!(x)) __debugbreak();
+    #define CORE_ASSERT(x) \
+        if (!(x)) __debugbreak();
 #else
-#define CORE_ASSERT(x)
+    #define CORE_ASSERT(x)
 #endif  // !_DEBUG
 
 #define BIT(x) (1 << x)
-#define BIND_EVENT_FUNC(fn)                                     \
-    [this](auto&&... args) -> decltype(auto) {                  \
+#define BIND_EVENT_FUNC(fn) \
+    [this](auto &&...args) -> decltype(auto) { \
         return this->fn(std::forward<decltype(args)>(args)...); \
     }

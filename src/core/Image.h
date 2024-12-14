@@ -16,7 +16,7 @@ struct ImageData {
 };
 
 class Image {
-   public:
+public:
     Image(const std::string& filePath, int reqComp = 4, bool setFlip = 1);
     ~Image() = default;
 
@@ -24,8 +24,10 @@ class Image {
     Image operator=(Image& _) = delete;
     Image operator=(Image&& _) = delete;
 
-    inline const ImageData& getImageData() const { return m_imageData; }
+    inline const ImageData& getImageData() const {
+        return m_imageData;
+    }
 
-   private:
+private:
     ImageData m_imageData;
 };

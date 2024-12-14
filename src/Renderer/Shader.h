@@ -1,14 +1,12 @@
 #pragma once
 
-#include <spdlog/fmt/fmt.h>
-
+#include "Scene/Light.h"
+#include "Scene/Material.h"
 #include <glm/glm.hpp>
+#include <spdlog/fmt/fmt.h>
 #include <memory>
 #include <string>
 #include <unordered_map>
-
-#include "Scene/Light.h"
-#include "Scene/Material.h"
 
 struct ShaderProgramSource {
     std::string vertexSource;
@@ -16,7 +14,7 @@ struct ShaderProgramSource {
 };
 
 class Shader {
-   public:
+public:
     Shader(const std::string& fileName);
     ~Shader();
 
@@ -28,12 +26,15 @@ class Shader {
     Shader& setLight(const std::string& name, const PointLight& light);
     template <typename T>  // Where T is a material
     Shader& setMaterial(const std::string& name, const T& material);
-    Shader& setMVP(const std::string& name, const glm::mat4& model,
-                   const glm::mat4& view, const glm::mat4& projection);
+    Shader& setMVP(
+        const std::string& name, const glm::mat4& model, const glm::mat4& view,
+        const glm::mat4& projection
+    );
 
     // Set primitive Uniforms
-    Shader& setUniform4f(const std::string& name, float v0, float v1, float v2,
-                         float v3);
+    Shader& setUniform4f(
+        const std::string& name, float v0, float v1, float v2, float v3
+    );
     Shader& setUniform4f(const std::string& name, const glm::vec4& v);
     Shader& setUniform3f(const std::string& name, float v0, float v1, float v2);
     Shader& setUniform3f(const std::string& name, const glm::vec3& v);
@@ -46,16 +47,19 @@ class Shader {
     Shader& setUniformMat3(const std::string& name, const glm::mat3& mat);
 
     // void setUniform(std::shared_ptr<Uniform> uniform);
-    unsigned int getRenderer() { return m_rendererId; }
+    unsigned int getRenderer() {
+        return m_rendererId;
+    }
 
-   private:
+private:
     unsigned int m_rendererId;
     const std::string m_filePath;
     std::unordered_map<std::string, int> m_locationMap;
 
     static unsigned int createShader(const ShaderProgramSource& source);
-    static unsigned int compileShader(const unsigned int shaderType,
-                                      const std::string& source);
+    static unsigned int compileShader(
+        const unsigned int shaderType, const std::string& source
+    );
     static ShaderProgramSource parseShader(const std::string& fileName);
     int getUniformLocation(const std::string& name);
 };

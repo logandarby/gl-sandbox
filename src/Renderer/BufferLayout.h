@@ -35,7 +35,7 @@ struct BufferElement {
 };
 
 class BufferLayout {
-   public:
+public:
     BufferLayout();
 
     template <typename T>
@@ -46,9 +46,11 @@ class BufferLayout {
     inline const std::vector<BufferElement>& getElements() const {
         return m_elements;
     }
-    inline unsigned int getStride() const { return m_stride; }
+    inline unsigned int getStride() const {
+        return m_stride;
+    }
 
-   private:
+private:
     std::vector<BufferElement> m_elements;
     unsigned int m_stride;
 };

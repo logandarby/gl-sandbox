@@ -2,6 +2,8 @@
 
 #include "Application.h"
 #include "Scene/Tests/LightingScene.h"
+#include <algorithm>
+#include <ranges>
 
 /*
         Things to do:
@@ -13,7 +15,9 @@
         - [] cleanup the code significantly
 */
 
-static const ApplicationSpec APP_SPEC = {.width = 960, .height = 540, .name = "OpenGL Sandbox"};
+static const ApplicationSpec APP_SPEC = { .width = 960,
+                                          .height = 540,
+                                          .name = "OpenGL Sandbox" };
 
 void runApplication() {
     Application app(APP_SPEC);

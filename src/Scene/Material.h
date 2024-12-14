@@ -1,8 +1,7 @@
 #pragma once
 
-#include <glm/glm.hpp>
-
 #include "Renderer/RendererTypes.h"
+#include <glm/glm.hpp>
 
 struct Material {
     glm::vec3 specular;

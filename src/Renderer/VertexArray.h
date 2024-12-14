@@ -1,17 +1,21 @@
 #pragma once
-#include <memory>
-
 #include "BufferLayout.h"
 #include "VertexBuffer.h"
+#include <memory>
 
 class VertexArray {
-   public:
+public:
     VertexArray();
     ~VertexArray();
 
-    void addBuffer(const std::shared_ptr<VertexBuffer> vb, const std::shared_ptr<BufferLayout> bl);
-    static inline VertexArray withBuffer(const std::shared_ptr<VertexBuffer> vb,
-                                         const std::shared_ptr<BufferLayout> bl) {
+    void addBuffer(
+        const std::shared_ptr<VertexBuffer> vb,
+        const std::shared_ptr<BufferLayout> bl
+    );
+    static inline VertexArray withBuffer(
+        const std::shared_ptr<VertexBuffer> vb,
+        const std::shared_ptr<BufferLayout> bl
+    ) {
         VertexArray va;
         va.addBuffer(vb, bl);
         return va;
@@ -20,7 +24,7 @@ class VertexArray {
     void bind() const;
     void unbind() const;
 
-   private:
+private:
     unsigned int m_rendererId;
     std::shared_ptr<VertexBuffer> m_vertexBuffer;
     std::shared_ptr<BufferLayout> m_bufferLayout;

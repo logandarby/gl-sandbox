@@ -1,8 +1,7 @@
 #pragma once
 
-#include <string>
-
 #include "Texture.h"
+#include <string>
 
 struct CubemapSource {
     const std::string right;
@@ -14,13 +13,13 @@ struct CubemapSource {
 };
 
 class CubemapTexture : public Texture {
-   public:
+public:
     CubemapTexture(const CubemapSource& sources);
     ~CubemapTexture();
 
     virtual void bind(unsigned int slot = 0) const override;
     virtual void unbind() const override;
 
-   private:
+private:
     unsigned int m_rendererId;
 };

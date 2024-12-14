@@ -20,12 +20,14 @@ struct CameraSpecification {
 };
 
 class Camera {
-   public:
+public:
     Camera(CameraSpecification spec);
     inline glm::mat4 getViewMatrix() const {
         return glm::lookAt(m_spec.pos, m_spec.pos + m_spec.front, m_spec.up);
     }
-    inline const glm::vec3 getPos() const { return m_spec.pos; }
+    inline const glm::vec3 getPos() const {
+        return m_spec.pos;
+    }
     inline const glm::mat4 getProjectionMatrix() const {
         return m_projectionMatrix;
     }
@@ -35,7 +37,7 @@ class Camera {
     // Rotates based off a rotational x and y value
     void rotate(float drX, float drY);
 
-   private:
+private:
     CameraSpecification m_spec;
     glm::mat4 m_projectionMatrix;
 };
