@@ -1,6 +1,14 @@
 # gl-sandbox
 A repo to experiment with GPU tech and openGL functionalities
 
+## Cloning
+
+Make sure to clone the submodules with the project
+
+```
+git clone --recurse-submodules https://github.com/logandarby/gl-sandbox
+```
+
 ## Running
 
 Cmake is used to build and run the project. Make sure all commands are run in git bash.
